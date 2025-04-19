@@ -2,15 +2,16 @@ import os
 
 from deepface import DeepFace
 
+from ..config import similar_model, spoof_threshold
 from ..domain.model import Candidate
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # to-do fix
 
 
 class FaceMatcher:
     def __init__(self, db):
-        self._spoof_threshold = 0.5
-        self._similar_model = "Facenet512"
+        self._spoof_threshold = spoof_threshold
+        self._similar_model = similar_model
         self._db = db
 
     def access(self, path: str) -> bool:

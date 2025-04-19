@@ -7,3 +7,7 @@ def get_db():
     db = docker_path if os.path.exists(docker_path) else local_path
     os.makedirs(db, exist_ok=True)
     return db
+
+
+spoof_threshold = 0.5
+similar_model = "Facenet512"

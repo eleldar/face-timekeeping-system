@@ -6,10 +6,12 @@ from uuid import uuid4
 from deepface import DeepFace
 from typing_extensions import Buffer
 
+from ..config import spoof_threshold
+
 
 class FaceRegistrator:
     def __init__(self, db: Path):
-        self._spoof_threshold = 0.5
+        self._spoof_threshold = spoof_threshold
         self._db = Path(db)
 
     def registrate(self, index: str, name: str, bfile: Buffer) -> bool:

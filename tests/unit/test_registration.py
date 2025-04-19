@@ -11,8 +11,6 @@ from face_matcher.service_layer.registrator import FaceRegistrator
 class TestRegistration:
     def setup_class(self):
         self._db = Path(get_db())
-        # shutil.copy(e1p2, db / "Ivanov Ivan Ivanovich.jpg")
-        # shutil.copy(e2p1, db / "Petrov Petr Petrovich.jpg")
         self._registrator = FaceRegistrator(db=self._db)
 
     def teardown_class(self):
