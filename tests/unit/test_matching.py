@@ -1,21 +1,27 @@
 import os
-import shutil
 from pathlib import Path
+from random import randint
 
 import pytest
 from conftest import e1fake, e1p1, e1p2, e2p1, e3unk
 
 from face_matcher.config import get_db
 from face_matcher.service_layer.matcher import FaceMatcher
+from face_matcher.service_layer.registrator import FaceRegistrator
 
 db = Path(get_db())
 
 
 class TestMatching:
     def setup_class(self):
-        shutil.copy(e1p2, db / "Ivanov Ivan Ivanovich.jpg")
-        shutil.copy(e2p1, db / "Petrov Petr Petrovich.jpg")
         self._matcher = FaceMatcher(db=db)
+        self._registrator = FaceRegistrator(db=db)
+        self._registrator.registrate(
+            index=randint(0, 100), name="Ivanov Ivan Ivanovich", bfile=self._read_bfile(self, path=e1p1)
+        )
+        self._registrator.registrate(
+            index=randint(0, 100), name="Petrov Petr Petrovich", bfile=self._read_bfile(self, path=e2p1)
+        )
 
     def teardown_class(self):
         for file in os.listdir(db):
@@ -68,3 +74,7 @@ class TestMatching:
         for example in access_examples:
             pred = self._matcher.access(example["path"])
             assert example["true"] == pred
+
+    def _read_bfile(self, path):
+        with open(path, "rb") as bfile:
+            return bfile.read()

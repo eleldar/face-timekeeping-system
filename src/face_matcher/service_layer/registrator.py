@@ -8,7 +8,7 @@ from typing_extensions import Buffer
 
 
 class FaceRegistrator:
-    def __init__(self, db: str):
+    def __init__(self, db: Path):
         self._spoof_threshold = 0.5
         self._db = Path(db)
 
