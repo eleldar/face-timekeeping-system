@@ -3,10 +3,9 @@ from pathlib import Path
 from time import sleep
 from uuid import uuid4
 
+from config import spoof_threshold
 from deepface import DeepFace
 from typing_extensions import Buffer
-
-from ..config import spoof_threshold
 
 
 class FaceRegistrator:

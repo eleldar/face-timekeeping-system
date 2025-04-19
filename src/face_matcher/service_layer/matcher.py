@@ -1,9 +1,9 @@
 import os
+from pathlib import Path
 
+from config import similar_model, spoof_threshold
 from deepface import DeepFace
-
-from ..config import similar_model, spoof_threshold
-from ..domain.model import Candidate
+from domain.model import Candidate
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # to-do fix
 
