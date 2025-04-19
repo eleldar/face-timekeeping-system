@@ -2,6 +2,8 @@ import os
 
 from deepface import DeepFace
 
+from ..domain.model import Candidate
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
@@ -10,6 +12,14 @@ class FaceMatcher:
         self._spoof_threshold = 0.5
         self._similar_model = "Facenet512"
         self._db = db
+
+    def access(self, path: str) -> bool:
+        if not self.is_real(path):
+            return False
+        candidate = self.search(path)
+        if candidate.found_path and candidate.name:
+            return self.is_similar(path, candidate.found_path)
+        return False
 
     def is_real(self, path: str) -> bool:
         response = DeepFace.extract_faces(img_path=path, anti_spoofing=True)
@@ -21,7 +31,7 @@ class FaceMatcher:
         prediction = response.get("verified", False)
         return prediction
 
-    def search(self, path: str) -> str | None:
+    def search(self, path: str) -> Candidate:
         response = DeepFace.find(
             img_path=path,
             db_path=self._db,
@@ -32,7 +42,5 @@ class FaceMatcher:
             path = response[response["distance"] == max_value]["identity"].iat[0]
             name = path.replace(str(self._db), "").replace("/", "")
             name = name.split(".")[0] if "." in name else name
-            return name
-        return
-        return response[0][response[0]["distance"] == max_value]
-        print(dfs[0][dfs[0]["distance"] == max_value]["identity"].iat[0])
+            return Candidate(found_path=path, name=name)
+        return Candidate(found_path=None, name=None)

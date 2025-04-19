@@ -28,8 +28,14 @@ verify_examples = [
 ]
 
 search_examples = [
-    {"id": 1, "path": e1p1, "name": "Ivanov Ivan Ivanovich"},
-    {"id": 2, "path": e3unk, "name": None},
+    {"id": 1, "path": e1p1, "name": "Ivanov Ivan Ivanovich", "found_path": str(db / "Ivanov Ivan Ivanovich.jpg")},
+    {"id": 2, "path": e3unk, "name": None, "found_path": None},
+]
+
+access_examples = [
+    {"id": 1, "path": e1p1, "name": "Ivanov Ivan Ivanovich", "true": True},
+    {"id": 2, "path": e1fake, "name": "Ivanov Ivan Ivanovich", "true": False},
+    {"id": 3, "path": e3unk, "name": "Ivanov Ivan Ivanovich", "true": False},
 ]
 
 
@@ -59,48 +65,10 @@ class TestMatching:
         assert os.path.exists(db / "Petrov Petr Petrovich.jpg")
         for example in search_examples:
             pred = self._matcher.search(example["path"])
-            print(pred)
-            assert example["name"] == pred
+            assert example["name"] == pred.name
+            assert example["found_path"] == pred.found_path
 
-
-"""
-from deepface import DeepFace
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-
-root_dir = Path("tests/datasets")
-# real
-e1p1 = root_dir / "employee1photo1.jpg"
-e1p2 = root_dir / "employee1photo2.jpg"
-e2p1 = root_dir / "employee2photo1.jpg"
-
-# fake
-e1fake = root_dir / "employee1fake.jpg"
-
-# check
-face_objs_e1p1 = DeepFace.extract_faces(img_path=e1p1, anti_spoofing=True)
-face_objs_e1p2 = DeepFace.extract_faces(img_path=e1p2, anti_spoofing=True)
-face_objs_e2p1 = DeepFace.extract_faces(img_path=e2p1, anti_spoofing=True)
-face_objs_e1fake = DeepFace.extract_faces(img_path=e1fake, anti_spoofing=True)
-
-assert face_objs_e1p1[0]["is_real"]
-assert face_objs_e1p2[0]["is_real"]
-assert face_objs_e2p1[0]["is_real"]
-assert not face_objs_e1fake[0]["is_real"]
-
-# comparation
-similar = DeepFace.verify(img1_path=e1p1, img2_path=e1p2, model_name="Facenet512")
-assert similar["verified"]
-unsimilar = DeepFace.verify(img1_path=e1p1, img2_path=e2p1, model_name="Facenet512")
-assert not unsimilar["verified"]
-
-# find
-dfs = DeepFace.find(
-    img_path=e1p1,
-    db_path=root_dir,
-    distance_metric="cosine",
-)
-max_value = dfs[0]["distance"].max()
-print(dfs[0][dfs[0]["distance"] == max_value]["identity"].iat[0])
-"""
+    def test_access(self):
+        for example in access_examples:
+            pred = self._matcher.access(example["path"])
+            assert example["true"] == pred
