@@ -23,8 +23,14 @@ class FaceMatcher:
         return False
 
     def is_real(self, path: str) -> bool:
-        response = DeepFace.extract_faces(img_path=path, anti_spoofing=True)
-        prediction = response[0].get("is_real", False) and response[0].get("antispoof_score", 0) > self._spoof_threshold
+        try:
+            response = DeepFace.extract_faces(img_path=str(path), anti_spoofing=True, enforce_detection=True)
+            prediction = (
+                response[0].get("is_real", False) and response[0].get("antispoof_score", 0) > self._spoof_threshold
+            )
+        except Exception as error:
+            print(error)
+            prediction = False
         return prediction
 
     def is_similar(self, path1: str, path2: str) -> bool:
