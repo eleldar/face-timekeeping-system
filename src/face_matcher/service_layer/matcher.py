@@ -1,9 +1,10 @@
 import os
-from pathlib import Path
+from uuid import uuid4
 
 from config import similar_model, spoof_threshold
 from deepface import DeepFace
-from domain.model import Candidate
+from domain.model import Candidate, MatchOutput
+from typing_extensions import Buffer
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # to-do fix
 
@@ -13,6 +14,17 @@ class FaceMatcher:
         self._spoof_threshold = spoof_threshold
         self._similar_model = similar_model
         self._db = db
+
+    def match(self, path: str, picture: Buffer) -> MatchOutput:
+        temp_file = self._db / str(uuid4())
+        with open(temp_file, "wb") as file:
+            file.write(picture)
+        fake = not self.is_real(temp_file)
+        path = self._db / path
+        response = DeepFace.verify(img1_path=path, img2_path=temp_file, model_name=self._similar_model)
+        access = response.get("verified", False)
+        os.remove(temp_file)
+        return MatchOutput(fake=fake, access=access)
 
     def access(self, path: str) -> bool:
         if not self.is_real(path):

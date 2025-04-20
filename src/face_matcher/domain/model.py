@@ -11,3 +11,9 @@ class Employee:
 class Candidate:
     name: str | None
     found_path: str | None
+
+
+@dataclass
+class MatchOutput:
+    fake: bool
+    access: bool

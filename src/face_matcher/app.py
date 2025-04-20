@@ -4,7 +4,7 @@ from random import randint
 
 import streamlit as st
 import torch
-from service_layer import registrator
+from service_layer import matcher, registrator
 
 torch.classes.__path__ = []
 
@@ -14,26 +14,31 @@ if "verify" not in st.session_state:
 st.title("Система учета рабочего времени")
 
 verify = st.toggle("Регистрация / Верификация")
+placeholder = st.empty()
 if verify:
+    reg_picture = None
     st.session_state.verify = True
+    placeholder.empty()
 else:
+    ver_picture = None
     st.session_state.verify = False
+    placeholder.empty()
 
 if not st.session_state.verify:
-    with st.container():
+    with placeholder.container():
         reg1, reg2 = st.columns(2)
         with reg1:
             name = st.text_input("Фамилия Имя Отчество")
         with reg2:
-            picture = st.camera_input("Фото", disabled=False)
-        if name and picture:
+            reg_picture = st.camera_input("Фото", disabled=st.session_state.verify)
+        if name and reg_picture:
             index = randint(0, 100)
-            real = registrator.registrate(index=index, name=name, bfile=picture.read())
+            real = registrator.registrate(index=index, name=name, bfile=reg_picture.read())
             if not real:
-                st.write("Fake Photo")
+                st.error("Поддельное фото!")
 
 if st.session_state.verify:
-    with st.container():
+    with placeholder.container():
         employees = registrator.get_employees()
         if employees:
             mat1, mat2 = st.columns(2)
@@ -41,7 +46,14 @@ if st.session_state.verify:
                 employee_list = [employee.name for employee in employees]
                 employee = st.selectbox("Выберите свое имя из списка", employee_list)
                 employee_index = employee_list.index(employee)
-                employee_path = employees[employee_index].path
-                st.write(employee_path)
+                path = employees[employee_index].path
             with mat2:
-                picture = st.camera_input("Фото", disabled=False)
+                ver_picture = st.camera_input("Фото", disabled=not st.session_state.verify)
+            if path and ver_picture:
+                result = matcher.match(path, ver_picture.read())
+                if result.fake:
+                    st.error("Поддельное фото!")
+                if result.access:
+                    st.success("Допущен к работе!", icon="✅")
+                else:
+                    st.error("Не допущен к работе!", icon="🚨")
