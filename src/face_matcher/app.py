@@ -1,12 +1,8 @@
-import os
 from pathlib import Path
 from random import randint
 
 import streamlit as st
-import torch
 from service_layer import matcher, registrator
-
-torch.classes.__path__ = []
 
 if "verify" not in st.session_state:
     st.session_state.verify = False
@@ -30,7 +26,7 @@ if not st.session_state.verify:
         with reg1:
             name = st.text_input("Фамилия Имя Отчество")
         with reg2:
-            reg_picture = st.camera_input("Фото", disabled=st.session_state.verify)
+            reg_picture = st.camera_input("Фото")
         if name and reg_picture:
             index = randint(0, 100)
             real = registrator.registrate(index=index, name=name, bfile=reg_picture.read())
@@ -48,7 +44,7 @@ if st.session_state.verify:
                 employee_index = employee_list.index(employee)
                 path = employees[employee_index].path
             with mat2:
-                ver_picture = st.camera_input("Фото", disabled=not st.session_state.verify)
+                ver_picture = st.camera_input("Фото")
             if path and ver_picture:
                 result = matcher.match(path, ver_picture.read())
                 if result.fake:

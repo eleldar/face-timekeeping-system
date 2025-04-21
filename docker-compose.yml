@@ -1,0 +1,23 @@
+services:
+  face-matcher:
+    container_name: FaceMatcher
+    image: face-matcher
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - tempfiles:/app/db
+    restart: always
+    # runtime: nvidia
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           # device_ids: ['0', '1']
+    #           count: all
+    #           capabilities: [gpu]
+volumes:
+  tempfiles:

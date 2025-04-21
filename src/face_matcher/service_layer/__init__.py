@@ -1,6 +1,11 @@
+import os
 from pathlib import Path
 
+import torch
 from config import get_db
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # to-do fix
+torch.classes.__path__ = []
 
 from .matcher import FaceMatcher
 from .registrator import FaceRegistrator

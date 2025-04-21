@@ -6,8 +6,6 @@ from deepface import DeepFace
 from domain.model import Candidate, MatchOutput
 from typing_extensions import Buffer
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # to-do fix
-
 
 class FaceMatcher:
     def __init__(self, db):
@@ -19,9 +17,13 @@ class FaceMatcher:
         temp_file = self._db / str(uuid4())
         with open(temp_file, "wb") as file:
             file.write(picture)
-        fake = not self.is_real(temp_file)
         path = self._db / path
-        response = DeepFace.verify(img1_path=path, img2_path=temp_file, model_name=self._similar_model)
+        try:
+            response = DeepFace.verify(img1_path=path, img2_path=temp_file, model_name=self._similar_model)
+        except Exception as error:
+            print(error)
+            response = {"verified": False}
+        fake = not self.is_real(temp_file)
         access = response.get("verified", False)
         os.remove(temp_file)
         return MatchOutput(fake=fake, access=access)
