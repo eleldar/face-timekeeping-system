@@ -21,6 +21,8 @@ class FaceRegistrator:
         with open(temp_file, "wb") as file:
             file.write(bfile)
         if self._is_real(temp_file):
+            if os.path.exists(file_name):
+                os.remove(file_name)
             os.rename(temp_file, file_name)
         else:
             os.remove(temp_file)
